@@ -8,20 +8,20 @@ import plotly.express as px
 # --- CONFIGURACIÓN DE LA APP ---
 st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="centered")
 
-# --- ESTILOS PREMIUM (MODO OSCURO Y DORADO) ---
+# --- ESTILOS PREMIUM ---
 st.markdown("""
     <style>
     .stApp { background-color: #0b0e14; color: #e0e0e0; }
     h1, h2, h3 { color: #D4AF37 !important; font-family: 'Helvetica Neue', sans-serif; }
     div[data-testid="metric-container"] {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 4px solid #D4AF37;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        background-color: #161b22; border: 1px solid #30363d; padding: 15px;
+        border-radius: 10px; border-left: 4px solid #D4AF37; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
     }
     [data-testid="stSidebar"] { background-color: #12151c; border-right: 1px solid #D4AF37; }
+    .ad-banner { background-color: #1a1e24; border: 1px dashed #D4AF37; text-align: center;
+        padding: 20px; border-radius: 8px; margin-bottom: 25px; margin-top: 10px; }
+    .ad-title { color: #D4AF37; font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+    .ad-text { color: #888; font-size: 0.9em; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -47,71 +47,89 @@ def obtener_clima_local():
         pass
     return {"temp": "--°C", "condicion": "No disponible", "viento": "-- km/h"}
 
+@st.cache_data(ttl=3600)
+def obtener_noticias_financieras():
+    try:
+        spy = yf.Ticker("SPY")
+        return spy.news[:5]
+    except:
+        return []
+
 # --- BARRA DE NAVEGACIÓN LATERAL ---
 st.sidebar.title("🦅 StarkRendimiento")
 st.sidebar.markdown("---")
-seccion = st.sidebar.radio("Navegación:", ["📊 Panel del Fondo", "👤 Mi Portafolio", "📍 Panel Local", "🌍 Mercado Global"])
+seccion = st.sidebar.radio("Navegación:", ["📊 Panel del Fondo", "👤 Fondo Público Stark", "📍 Panel Local", "🌍 Mercado Global"])
 
-# --- SECCIÓN 1: PANEL GLOBAL DEL FONDO (NUEVO) ---
+# --- ESPACIO PUBLICITARIO GLOBAL ---
+st.markdown("""
+    <div class="ad-banner">
+        <div class="ad-title">ESPACIO PUBLICITARIO DISPONIBLE</div>
+        <div class="ad-text">Destaca tu marca frente a inversores y profesionales.<br>Contáctanos para anunciar aquí.</div>
+    </div>
+""", unsafe_allow_html=True)
+
+# --- SECCIÓN 1: PANEL GLOBAL (CON ORO Y BTC) ---
 if seccion == "📊 Panel del Fondo":
     st.title("Transparencia y Gestión")
-    st.write("Métricas globales del capital administrado por StarkRendimiento.")
+    st.write("Métricas globales del capital y commodities clave.")
     
-    # Métricas Globales Simuladas
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Inversores Activos", "24", "+3 este mes")
-    col2.metric("Capital Gestionado", "$45,250 USD", "+$5,000 USD")
-    col3.metric("Rendimiento Anual", "14.2%", "+2.1%")
+    # Precios en vivo de commodities
+    precio_btc = obtener_precio_actual("BTC-USD")
+    precio_oro = obtener_precio_actual("GC=F") # Ticker del futuro del Oro
+    
+    col1, col2 = st.columns(2)
+    col1.metric("Bitcoin (BTC)", f"${precio_btc:,.2f}")
+    col2.metric("Oro (Onza)", f"${precio_oro:,.2f}")
     
     st.markdown("---")
-    
-    # Gráfico 1: Distribución del Fondo (Dona)
     st.subheader("Distribución de Activos")
     datos_activos = pd.DataFrame({
-        "Activo": ["S&P 500 (SPY)", "Bonos (AL30)", "Energía (YPF)", "Liquidez"],
-        "Porcentaje": [50, 25, 15, 10]
+        "Activo": ["S&P 500 (SPY)", "Bonos (AL30 / AO27)", "Energía (YPF)", "Bitcoin"],
+        "Porcentaje": [40, 30, 15, 15]
     })
     
     fig_pie = px.pie(datos_activos, values='Porcentaje', names='Activo', hole=0.5, 
-                     color_discrete_sequence=['#D4AF37', '#1f77b4', '#2ca02c', '#7f7f7f'])
+                     color_discrete_sequence=['#D4AF37', '#1f77b4', '#2ca02c', '#f7931a'])
     fig_pie.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#e0e0e0'))
     st.plotly_chart(fig_pie, use_container_width=True)
 
-    # Gráfico 2: Crecimiento del Fondo (Barras)
-    st.subheader("Crecimiento Histórico del Capital")
-    datos_crecimiento = pd.DataFrame({
-        "Mes": ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-        "Capital (USD)": [30000, 32500, 36000, 39500, 42000, 45250]
-    })
+# --- SECCIÓN 2: SKIN IN THE GAME (EL DINERO REAL) ---
+elif seccion == "👤 Fondo Público Stark":
+    st.title("Capital Administrado 🦅")
+    st.write("Transparencia total: Monitoreo en tiempo real de nuestras propias inversiones.")
     
-    fig_bar = px.bar(datos_crecimiento, x='Mes', y='Capital (USD)', text='Capital (USD)',
-                     color_discrete_sequence=['#D4AF37'])
-    fig_bar.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#e0e0e0'))
-    st.plotly_chart(fig_bar, use_container_width=True)
+    # === ACÁ PONÉS TUS PRECIOS DE COMPRA REALES ===
+    compra_btc = 60000.00
+    compra_spy = 505.50
+    compra_ypf = 16.20
+    compra_al30 = 55.00 # Ejemplo de cotización de bono
+    
+    # Precios actuales en vivo
+    actual_btc = obtener_precio_actual("BTC-USD")
+    actual_spy = obtener_precio_actual("SPY")
+    actual_ypf = obtener_precio_actual("YPF")
+    actual_al30 = obtener_precio_actual("AL30.BA") # Cotización en BCBA
+    
+    # Cálculo de rentabilidad
+    def calc_ganancia(actual, compra):
+        if compra > 0 and actual > 0:
+            return ((actual - compra) / compra) * 100
+        return 0.0
 
-# --- SECCIÓN 2: PORTAFOLIO INDIVIDUAL ---
-elif seccion == "👤 Mi Portafolio":
-    st.title("Tu Capital VIP")
-    st.write("Monitoreo en tiempo real de tus posiciones.")
+    st.subheader("Rendimiento del Portafolio Vivo")
     
-    precio_compra_spy = 505.50
-    precio_actual_spy = obtener_precio_actual("SPY")
-    ganancia_spy = ((precio_actual_spy - precio_compra_spy) / precio_compra_spy) * 100 if precio_compra_spy else 0
+    c1, c2 = st.columns(2)
+    c1.metric(label="Bitcoin (BTC)", value=f"${actual_btc:,.2f}", delta=f"{calc_ganancia(actual_btc, compra_btc):.2f}%")
+    c2.metric(label="S&P 500 (SPY)", value=f"${actual_spy:,.2f}", delta=f"{calc_ganancia(actual_spy, compra_spy):.2f}%")
     
-    precio_compra_ypf = 16.20
-    precio_actual_ypf = obtener_precio_actual("YPF")
-    ganancia_ypf = ((precio_actual_ypf - precio_compra_ypf) / precio_compra_ypf) * 100 if precio_compra_ypf else 0
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric(label="S&P 500 (SPY)", value=f"${precio_actual_spy}", delta=f"{round(ganancia_spy, 2)}%")
-    with col2:
-        st.metric(label="YPF (ADR)", value=f"${precio_actual_ypf}", delta=f"{round(ganancia_ypf, 2)}%")
+    c3, c4 = st.columns(2)
+    c3.metric(label="YPF (ADR)", value=f"${actual_ypf:,.2f}", delta=f"{calc_ganancia(actual_ypf, compra_ypf):.2f}%")
+    c4.metric(label="Bono AL30", value=f"${actual_al30:,.2f}", delta=f"{calc_ganancia(actual_al30, compra_al30):.2f}%")
         
     st.markdown("---")
-    st.info("💡 **Análisis Estratégico:** Fase de acumulación detectada con bajo volumen. Sostenemos posiciones esperando el próximo impulso alcista.")
+    st.success("💡 **Estrategia Stark:** Nuestra piel está en el juego. Operamos bajo el Método Wyckoff buscando zonas de acumulación institucional antes de abrir posiciones.")
 
-# --- SECCIÓN 3: PANEL LOCAL (RÍO GRANDE) ---
+# --- SECCIÓN 3: PANEL LOCAL ---
 elif seccion == "📍 Panel Local":
     st.title("Centro de Información Local")
     st.subheader("☁️ Clima Actual en Río Grande")
@@ -122,25 +140,28 @@ elif seccion == "📍 Panel Local":
     col_c3.metric("Viento", clima["viento"])
     
     st.markdown("---")
-    st.subheader("⛽ Red de Combustibles (Autosur)")
+    st.subheader("⛽ Red de Combustibles")
     datos_combustible = {
-        "Zona": ["Río Grande", "Río Grande", "CABA (Promedio)", "CABA (Promedio)"],
-        "Producto": ["Super", "Infinia", "Super", "Infinia"],
-        "Precio x Litro": ["$661", "$839", "$980", "$1180"]
+        "Zona": ["Río Grande", "Río Grande", "Río Grande", "Río Grande"],
+        "Producto": ["Super", "Infinia", "Infinia Diesel", "Diesel 500"],
+        "Precio": ["$1666", "$1839", "$2021", "$1981"]
     }
     st.table(pd.DataFrame(datos_combustible))
 
 # --- SECCIÓN 4: MERCADO GLOBAL ---
 elif seccion == "🌍 Mercado Global":
     st.title("Pulso Económico 🌐")
-    st.write("Las noticias que mueven los mercados mundiales hoy.")
-    st.success("🇺🇸 **Wall Street:** Índices en verde tras un reporte de inflación menor al esperado.")
-    st.warning("💶 **Europa:** El Banco Central Europeo evalúa recortar las tasas antes de fin de año.")
-    st.info("⚡ **Materias Primas:** El oro alcanza nuevos máximos históricos ante la búsqueda de activos refugio.")
+    st.write("Titulares financieros en tiempo real (Fuente: Yahoo Finance).")
     st.markdown("---")
-    st.write(f"*Información actualizada a las: {datetime.now().strftime('%H:%M')}*")
+    noticias = obtener_noticias_financieras()
+    if noticias:
+        for noticia in noticias:
+            st.subheader(noticia.get('title', 'Noticia sin título'))
+            st.write(noticia.get('publisher', 'Agencia Financiera'))
+            st.markdown(f"[Leer artículo completo]({noticia.get('link', '#')})")
+            st.markdown("---")
+    else:
+        st.warning("Mercado cerrado o sin noticias recientes.")
 
-# Pie de página general
 st.sidebar.markdown("---")
 st.sidebar.caption("© 2026 StarkRendimiento Management")
-st.sidebar.caption("Tecnología financiera de vanguardia.")
