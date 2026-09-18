@@ -4,9 +4,15 @@ import pandas as pd
 from datetime import datetime
 import requests
 import plotly.express as px
+import os
+import qrcode
+from io import BytesIO
 
 # --- CONFIGURACIÓN DE LA APP ---
 st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="centered")
+
+# --- VARIABLES DE ENTORNO Y PASARELA ---
+NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
 # --- ESTILOS PREMIUM ---
 st.markdown("""
@@ -55,10 +61,39 @@ def obtener_noticias_financieras():
     except:
         return []
 
+def generar_invoice_nowpayments(monto_usd, api_key):
+    url = "https://api.nowpayments.io/v1/invoice"
+    payload = {
+        "price_amount": float(monto_usd),
+        "price_currency": "usd",
+        "pay_currency": "usdtmatic",  # Liquidación en USDT (red Polygon)
+        "is_fee_paid_by_user": True,
+        "order_description": "Cobro via StarkRendimiento"
+    }
+    headers = {
+        "x-api-key": api_key,
+        "Content-Type": "application/json"
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        if response.status_code in [200, 201]:
+            return response.json().get("invoice_url")
+        else:
+            st.error(f"Error API NOWPayments ({response.status_code}): {response.text}")
+    except Exception as e:
+        st.error(f"Error de conexión con la pasarela: {e}")
+    return None
+
 # --- BARRA DE NAVEGACIÓN LATERAL ---
 st.sidebar.title("🦅 StarkRendimiento")
 st.sidebar.markdown("---")
-seccion = st.sidebar.radio("Navegación:", ["📊 Panel del Fondo", "👤 Fondo Público Stark", "📍 Panel Local", "🌍 Mercado Global"])
+seccion = st.sidebar.radio("Navegación:", [
+    "📊 Panel del Fondo", 
+    "👤 Fondo Público Stark", 
+    "📍 Panel Local", 
+    "🌍 Mercado Global", 
+    "💳 Cobrar (QR USDT)"
+])
 
 # --- ESPACIO PUBLICITARIO GLOBAL ---
 st.markdown("""
@@ -73,9 +108,8 @@ if seccion == "📊 Panel del Fondo":
     st.title("Transparencia y Gestión")
     st.write("Métricas globales del capital y commodities clave.")
     
-    # Precios en vivo de commodities
     precio_btc = obtener_precio_actual("BTC-USD")
-    precio_oro = obtener_precio_actual("GC=F") # Ticker del futuro del Oro
+    precio_oro = obtener_precio_actual("GC=F")
     
     col1, col2 = st.columns(2)
     col1.metric("Bitcoin (BTC)", f"${precio_btc:,.2f}")
@@ -93,24 +127,21 @@ if seccion == "📊 Panel del Fondo":
     fig_pie.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='#e0e0e0'))
     st.plotly_chart(fig_pie, use_container_width=True)
 
-# --- SECCIÓN 2: SKIN IN THE GAME (EL DINERO REAL) ---
+# --- SECCIÓN 2: SKIN IN THE GAME ---
 elif seccion == "👤 Fondo Público Stark":
     st.title("Capital Administrado 🦅")
     st.write("Transparencia total: Monitoreo en tiempo real de nuestras propias inversiones.")
     
-    # === ACÁ PONÉS TUS PRECIOS DE COMPRA REALES ===
     compra_btc = 60000.00
     compra_spy = 505.50
     compra_ypf = 16.20
-    compra_al30 = 55.00 # Ejemplo de cotización de bono
+    compra_al30 = 55.00
     
-    # Precios actuales en vivo
     actual_btc = obtener_precio_actual("BTC-USD")
     actual_spy = obtener_precio_actual("SPY")
     actual_ypf = obtener_precio_actual("YPF")
-    actual_al30 = obtener_precio_actual("AL30.BA") # Cotización en BCBA
+    actual_al30 = obtener_precio_actual("AL30.BA")
     
-    # Cálculo de rentabilidad
     def calc_ganancia(actual, compra):
         if compra > 0 and actual > 0:
             return ((actual - compra) / compra) * 100
@@ -162,6 +193,33 @@ elif seccion == "🌍 Mercado Global":
             st.markdown("---")
     else:
         st.warning("Mercado cerrado o sin noticias recientes.")
+
+# --- SECCIÓN 5: COBRAR CON QR USDT ---
+elif seccion == "💳 Cobrar (QR USDT)":
+    st.title("Módulo de Cobros Cripto / Tarjeta 💳")
+    st.write("Genera una orden de cobro en USD. El cliente paga con tarjeta o cripto y los fondos se liquidan en USDT directamente en tu billetera.")
+    
+    api_key_input = st.text_input("NOWPayments API Key", value=NOWPAYMENTS_API_KEY, type="password")
+    monto = st.number_input("Monto a cobrar (USD)", min_value=1.0, value=10.0, step=1.0)
+
+    if st.button("🚀 Generar Código QR", type="primary"):
+        if not api_key_input:
+            st.warning("⚠️ Ingresa tu API Key de NOWPayments para continuar.")
+        else:
+            with st.spinner("Creando orden de pago..."):
+                url_pago = generar_invoice_nowpayments(monto, api_key_input)
+                if url_pago:
+                    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+                    qr.add_data(url_pago)
+                    qr.make(fit=True)
+                    img = qr.make_image(fill_color="black", back_color="white")
+
+                    buf = BytesIO()
+                    img.save(buf, format="PNG")
+
+                    st.success(f"✅ Orden por ${monto:.2f} USD creada")
+                    st.image(buf.getvalue(), caption="Muestra este QR al cliente para escanear", width=280)
+                    st.markdown(f"🔗 [Enlace directo de pago]({url_pago})")
 
 st.sidebar.markdown("---")
 st.sidebar.caption("© 2026 StarkRendimiento Management")
