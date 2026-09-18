@@ -12,6 +12,7 @@ from io import BytesIO
 st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="centered")
 
 # --- VARIABLES DE ENTORNO Y PASARELA ---
+# Aquí toma la clave directamente de Render de forma segura
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
 # --- ESTILOS PREMIUM ---
@@ -199,15 +200,14 @@ elif seccion == "💳 Cobrar (QR USDT)":
     st.title("Módulo de Cobros Cripto / Tarjeta 💳")
     st.write("Genera una orden de cobro en USD. El cliente paga con tarjeta o cripto y los fondos se liquidan en USDT directamente en tu billetera.")
     
-    api_key_input = st.text_input("NOWPayments API Key", value=NOWPAYMENTS_API_KEY, type="password")
     monto = st.number_input("Monto a cobrar (USD)", min_value=1.0, value=10.0, step=1.0)
 
     if st.button("🚀 Generar Código QR", type="primary"):
-        if not api_key_input:
-            st.warning("⚠️ Ingresa tu API Key de NOWPayments para continuar.")
+        if not NOWPAYMENTS_API_KEY:
+            st.error("⚠️ Error: No se encontró la API Key. Verifica las variables de entorno en Render.")
         else:
             with st.spinner("Creando orden de pago..."):
-                url_pago = generar_invoice_nowpayments(monto, api_key_input)
+                url_pago = generar_invoice_nowpayments(monto, NOWPAYMENTS_API_KEY)
                 if url_pago:
                     qr = qrcode.QRCode(version=1, box_size=10, border=2)
                     qr.add_data(url_pago)
