@@ -15,7 +15,7 @@ NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
 # Configura aquí tus datos locales para cobros sin impuestos internacionales
 MI_ALIAS_PESOS = "Luisfiwind12"  # Cambia por tu Alias CBU/CVU real
-MI_WALLET_USDT = "0xca82339a545c29d7288b88633ea95bfe25d0e7b4"  # Tu wallet Polygon/TRC20
+MI_WALLET_USDT_USDC = "0xca82339a545c29d7288b88633ea95bfe25d0e7b4"  # Tu wallet Polygon/TRC20
 
 # --- ESTILOS PREMIUM ---
 st.markdown("""
