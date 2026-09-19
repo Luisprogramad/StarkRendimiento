@@ -14,8 +14,8 @@ st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="wide
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
 # Configura aquí tus datos locales para cobros sin impuestos internacionales
-MI_ALIAS_PESOS = "stark.rendimiento.mp"  # Cambia por tu Alias CBU/CVU real
-MI_WALLET_USDT = "0x0000000000000000000000000000000000000000"  # Tu wallet Polygon/TRC20
+MI_ALIAS_PESOS = "Luisfiwind12"  # Cambia por tu Alias CBU/CVU real
+MI_WALLET_USDT = "0xca82339a545c29d7288b88633ea95bfe25d0e7b4"  # Tu wallet Polygon/TRC20
 
 # --- ESTILOS PREMIUM ---
 st.markdown("""
