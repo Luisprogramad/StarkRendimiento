@@ -185,7 +185,9 @@ elif seccion == "💳 Billetera y Cobros (Sin Impuestos)":
         
     with col_calc:
         st.subheader("Equivalencias de Mercado")
-        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")         st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")         st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
+        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")         
+        st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")         
+        st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
     
     st.markdown("---")
     st.subheader("Selecciona el Método de Cobro")
