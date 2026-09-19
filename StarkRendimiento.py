@@ -13,7 +13,7 @@ st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="cent
 
 # --- VARIABLES DE ENTORNO Y PASARELA ---
 # Aquí toma la clave directamente de Render de forma segura
-NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
+NOWPAYMENTS_API_KEY = os.getenv("AMJ2HGA-1CD4PG4-JD3KH3F-SN4KHZ2", "")
 
 # --- ESTILOS PREMIUM ---
 st.markdown("""
