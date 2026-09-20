@@ -13,8 +13,10 @@ st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="wide
 # --- VARIABLES DE ENTORNO Y PASARELA ---
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
-# Configura aquí tus datos locales para cobros sin impuestos internacionales
-MI_ALIAS_PESOS = "Luisfiwind12"  # Cambia por tu Alias CBU/CVU real
+# Configura aquí tus datos locales para cobros
+ALIAS_FIWIND = "tu.alias.fiwind"        # REEMPLAZAR
+ALIAS_BELO = "tu.alias.belo"            # REEMPLAZAR
+ALIAS_MERCADOPAGO = "tu.alias.mp"       # REEMPLAZAR
 MI_WALLET_USDT = "0x0000000000000000000000000000000000000000"  # Tu wallet Polygon/TRC20
 
 # --- ESTILOS PREMIUM ---
@@ -85,7 +87,6 @@ def generar_invoice_nowpayments(monto, moneda, api_key):
     payload = {
         "price_amount": float(monto),
         "price_currency": moneda,
-        # AL OMITIR 'pay_currency', LA PASARELA MOSTRARÁ EL MENÚ PARA ELEGIR USDT O USDC
         "is_fee_paid_by_user": True,
         "order_description": "Cobro via StarkRendimiento"
     }
@@ -125,7 +126,6 @@ seccion = st.sidebar.radio("Navegación:", [
 if seccion == "🌍 Terminal de Mercado":
     st.title("Terminal Financiera Global y Local 🌐")
     
-    # Cotizaciones Dólar Argentina
     st.subheader("🇦🇷 Cotizaciones Dólar (Tiempo Real)")
     dolares = obtener_dolares_argentina()
     
@@ -141,11 +141,9 @@ if seccion == "🌍 Terminal de Mercado":
         
     st.markdown("---")
     
-    # Panel de Acciones tipo Yahoo
     st.subheader("📈 Monitor de Activos (Equities & ETFs)")
     df_acciones = obtener_panel_acciones()
     st.dataframe(df_acciones, use_container_width=True, hide_index=True)
-    
     st.caption("💡 Los precios se actualizan con un retraso de 15 min según la fuente (Yahoo Finance).")
 
 # --- SECCIÓN 2: PORTAFOLIO ---
@@ -185,9 +183,7 @@ elif seccion == "💳 Billetera y Cobros (Sin Impuestos)":
         
     with col_calc:
         st.subheader("Equivalencias de Mercado")
-        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")        
-        st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")        
-        st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
+        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")         st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")         st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
     
     st.markdown("---")
     st.subheader("Selecciona el Método de Cobro")
@@ -203,13 +199,27 @@ elif seccion == "💳 Billetera y Cobros (Sin Impuestos)":
     
     if "CVU / Pesos" in metodo:
         st.success("✅ **Opción 100% libre de impuesto al dólar internacional.**")
+        
+        cuenta_destino = st.selectbox(
+            "¿En qué cuenta querés recibir los pesos?",
+            ("Fiwind", "Belo", "Mercado Pago")
+        )
+        
+        if cuenta_destino == "Fiwind":
+            alias_seleccionado = Luisfiwind12
+        elif cuenta_destino == "Belo":
+            alias_seleccionado = luisbelo1214
+        else:
+            alias_seleccionado = lobomar.mp
+
         st.markdown(f"""
         1. El cliente debe transferir **${monto_ars:,.2f} ARS**.
-        2. **Alias CVU:** `{MI_ALIAS_PESOS}`
-        3. Acepta transferencias desde Mercado Pago, Fiwind, Lemon, Belo o cualquier banco argentino.
+        2. **Alias de destino ({cuenta_destino}):** `{alias_seleccionado}`
+        3. Acepta transferencias desde Mercado Pago, Ualá, bancos tradicionales, etc.
         """)
-        qr_bytes = generar_qr_imagen(MI_ALIAS_PESOS)
-        st.image(qr_bytes, caption="Escanear Alias para transferir en ARS", width=250)
+        
+        qr_bytes = generar_qr_imagen(alias_seleccionado)
+        st.image(qr_bytes, caption=f"Escanear Alias para transferir a {cuenta_destino}", width=250)
         
     elif "Cripto Directa" in metodo:
         st.success("✅ **Opción 100% libre de impuesto al dólar internacional.**")
