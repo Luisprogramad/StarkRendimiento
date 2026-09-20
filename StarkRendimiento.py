@@ -146,6 +146,14 @@ if seccion == "🌍 Terminal de Mercado":
     st.dataframe(df_acciones, use_container_width=True, hide_index=True)
     st.caption("💡 Los precios se actualizan con un retraso de 15 min según la fuente (Yahoo Finance).")
 
+    # --- NUEVO: BOTÓN DE ACCESO DIRECTO A TU TRADINGVIEW ---
+    st.markdown("---")
+    st.subheader("📊 Mi TradingView Profesional")
+    st.info("💡 Haz clic para abrir tu sesión privada con tus indicadores personalizados y listas de seguimiento en una pestaña nueva.")
+    
+    # Al hacer clic, te llevará directamente a tu último gráfico guardado de TradingView
+    st.link_button("🚀 Abrir Mi Gráfico Avanzado en TradingView", "https://es.tradingview.com/chart/", use_container_width=True)
+
 # --- SECCIÓN 2: PORTAFOLIO ---
 elif seccion == "📊 Portafolio Stark":
     st.title("Capital Administrado 🦅")
@@ -183,9 +191,7 @@ elif seccion == "💳 Billetera y Cobros (Sin Impuestos)":
         
     with col_calc:
         st.subheader("Equivalencias de Mercado")
-        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")         
-        st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")        
-        st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
+        st.write(f"• **Al Dólar MEP (${precio_mep:,.2f}):** u$s {(monto_ars / precio_mep):.2f}")                  st.write(f"• **Al Dólar Cripto (${precio_cripto:,.2f}):** {(monto_ars / precio_cripto):.2f} USDT")                 st.write(f"• **Al Dólar Oficial (${precio_oficial:,.2f}):** u$s {(monto_ars / precio_oficial):.2f}")
     
     st.markdown("---")
     st.subheader("Selecciona el Método de Cobro")
