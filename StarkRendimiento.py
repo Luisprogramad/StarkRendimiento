@@ -14,9 +14,9 @@ st.set_page_config(page_title="StarkRendimiento", page_icon="🦅", layout="wide
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 
 # Configura aquí tus datos locales para cobros
-ALIAS_FIWIND = "tu.alias.fiwind"        # REEMPLAZAR
-ALIAS_BELO = "tu.alias.belo"            # REEMPLAZAR
-ALIAS_MERCADOPAGO = "tu.alias.mp"       # REEMPLAZAR
+ALIAS_FIWIND = "Luisfiwind12"        # REEMPLAZAR
+ALIAS_BELO = "luisbelo1214"            # REEMPLAZAR
+ALIAS_MERCADOPAGO = "lobomar.mp"       # REEMPLAZAR
 MI_WALLET_USDT = "0x0000000000000000000000000000000000000000"  # Tu wallet Polygon/TRC20
 
 # --- ESTILOS PREMIUM ---
@@ -208,11 +208,11 @@ elif seccion == "💳 Billetera y Cobros (Sin Impuestos)":
         )
         
         if cuenta_destino == "Fiwind":
-            alias_seleccionado = Luisfiwind12
+            alias_seleccionado = ALIAS_FIWIND
         elif cuenta_destino == "Belo":
-            alias_seleccionado = luisbelo1214
+            alias_seleccionado = ALIAS_BELO
         else:
-            alias_seleccionado = lobomar.mp
+            alias_seleccionado = ALIAS_MERCADOPAGO
 
         st.markdown(f"""
         1. El cliente debe transferir **${monto_ars:,.2f} ARS**.
